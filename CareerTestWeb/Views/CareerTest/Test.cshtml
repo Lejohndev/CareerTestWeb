@@ -1,0 +1,164 @@
+﻿@model List<CareerTestWeb.Data.CauHoi>
+
+@{
+    ViewData["Title"] = "Bài Test MBTI";
+}
+
+<div class="bg-light py-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                <li class="breadcrumb-item active">Bài Test MBTI</li>
+            </ol>
+        </nav>
+        <h1 class="mb-0">Bài Test Tính Cách MBTI</h1>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="test-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Câu hỏi <span id="current-question">1</span>/<span id="total-questions">@Model.Count</span></h2>
+            <div class="progress" style="width: 200px; height: 20px;">
+                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+
+        <div id="question-container">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var question = Model[i];
+                <div class="question" data-question-id="@question.IDQues" style="@(i > 0 ? "display:none;" : "")">
+                    <h4 class="question-text">@question.NameQues</h4>
+
+                    <div class="answer-option" data-answer-id="1">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="question-@question.IDQues" id="option1-@question.IDQues" value="1">
+                            <label class="form-check-label w-100" for="option1-@question.IDQues">
+                                @question.NameAns
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="answer-option" data-answer-id="2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="question-@question.IDQues" id="option2-@question.IDQues" value="2">
+                            <label class="form-check-label w-100" for="option2-@question.IDQues">
+                                @(question.AnswerType == 1 ? "Đồng ý" : "Không đồng ý")
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button id="prev-btn" class="btn btn-secondary" disabled>
+                <i class="fas fa-arrow-left me-2"></i>Câu trước
+            </button>
+            <button id="next-btn" class="btn btn-primary">
+                Câu sau <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+            <button id="submit-btn" class="btn btn-success" style="display: none;">
+                Hoàn thành <i class="fas fa-check ms-2"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            var currentQuestion = 1;
+            var totalQuestions = @Model.Count;
+            var answers = {};
+
+            // Cập nhật tiến độ
+            function updateProgress() {
+                var progress = (currentQuestion / totalQuestions) * 100;
+                $('.progress-bar').css('width', progress + '%').attr('aria-valuenow', progress);
+                $('#current-question').text(currentQuestion);
+            }
+
+            // Hiển thị câu hỏi hiện tại
+            function showQuestion(index) {
+                $('.question').hide();
+                $('.question').eq(index - 1).show();
+
+                $('#prev-btn').prop('disabled', index === 1);
+
+                if (index === totalQuestions) {
+                    $('#next-btn').hide();
+                    $('#submit-btn').show();
+                } else {
+                    $('#next-btn').show();
+                    $('#submit-btn').hide();
+                }
+
+                updateProgress();
+            }
+
+            // Chuyển đến câu hỏi tiếp theo
+            $('#next-btn').click(function() {
+                if (currentQuestion < totalQuestions) {
+                    currentQuestion++;
+                    showQuestion(currentQuestion);
+                }
+            });
+
+            // Quay lại câu hỏi trước
+            $('#prev-btn').click(function() {
+                if (currentQuestion > 1) {
+                    currentQuestion--;
+                    showQuestion(currentQuestion);
+                }
+            });
+
+            // Chọn đáp án
+            $('.answer-option').click(function() {
+                var $this = $(this);
+                var questionId = $this.closest('.question').data('question-id');
+                var answerId = $this.data('answer-id');
+
+                // Đánh dấu đáp án được chọn
+                $this.addClass('selected').siblings().removeClass('selected');
+                $this.find('input[type="radio"]').prop('checked', true);
+
+                // Lưu câu trả lời
+                answers[questionId] = answerId;
+            });
+
+            // Nộp bài test
+            $('#submit-btn').click(function() {
+                // Hiển thị loading
+                Swal.fire({
+                    title: 'Đang xử lý kết quả...',
+                    text: 'Vui lòng chờ trong giây lát',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                    }
+                });
+
+                // Gửi kết quả đến server
+                $.ajax({
+                    url: '/CareerTest/SubmitTest',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ Answers: answers }),
+                    success: function(response) {
+                        Swal.close();
+                        window.location.href = '/CareerTest/Result?type=' + response.personalityType;
+                    },
+                    error: function() {
+                        Swal.fire('Lỗi', 'Đã xảy ra lỗi khi xử lý kết quả', 'error');
+                    }
+                });
+            });
+
+            // Khởi tạo
+            updateProgress();
+        });
+    </script>
+}
