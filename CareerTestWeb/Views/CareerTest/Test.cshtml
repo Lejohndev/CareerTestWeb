@@ -1,4 +1,4 @@
-﻿@model List<CareerTestWeb.Data.CauHoi>
+﻿@model List<CareerTestWeb.Controllers.QuestionViewModel>
 
 @{
     ViewData["Title"] = "Bài Test MBTI";
@@ -31,24 +31,26 @@
                 var question = Model[i];
                 <div class="question" data-question-id="@question.IDQues" style="@(i > 0 ? "display:none;" : "")">
                     <h4 class="question-text">@question.NameQues</h4>
-
-                    <div class="answer-option" data-answer-id="1">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="question-@question.IDQues" id="option1-@question.IDQues" value="1">
-                            <label class="form-check-label w-100" for="option1-@question.IDQues">
-                                @question.NameAns
-                            </label>
+                    @if (question.Answers != null && question.Answers.Any())
+                    {
+                        <div class="answer-option" data-answer-id="@question.Answers[0].IDAns">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="question-@question.IDQues" id="option1-@question.IDQues" value="@question.Answers[0].IDAns" required>
+                                <label class="form-check-label w-100" for="option1-@question.IDQues">
+                                    @question.Answers[0].NameAns
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="answer-option" data-answer-id="2">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="question-@question.IDQues" id="option2-@question.IDQues" value="2">
-                            <label class="form-check-label w-100" for="option2-@question.IDQues">
-                                @(question.AnswerType == 1 ? "Đồng ý" : "Không đồng ý")
-                            </label>
+                        <div class="answer-option" data-answer-id="@question.Answers[1].IDAns">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="question-@question.IDQues" id="option2-@question.IDQues" value="@question.Answers[1].IDAns" required>
+                                <label class="form-check-label w-100" for="option2-@question.IDQues">
+                                    @question.Answers[1].NameAns
+                                </label>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             }
         </div>
@@ -68,20 +70,20 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
             var currentQuestion = 1;
             var totalQuestions = @Model.Count;
             var answers = {};
 
-            // Cập nhật tiến độ
             function updateProgress() {
                 var progress = (currentQuestion / totalQuestions) * 100;
                 $('.progress-bar').css('width', progress + '%').attr('aria-valuenow', progress);
                 $('#current-question').text(currentQuestion);
             }
 
-            // Hiển thị câu hỏi hiện tại
             function showQuestion(index) {
                 $('.question').hide();
                 $('.question').eq(index - 1).show();
@@ -99,7 +101,6 @@
                 updateProgress();
             }
 
-            // Chuyển đến câu hỏi tiếp theo
             $('#next-btn').click(function() {
                 if (currentQuestion < totalQuestions) {
                     currentQuestion++;
@@ -107,7 +108,6 @@
                 }
             });
 
-            // Quay lại câu hỏi trước
             $('#prev-btn').click(function() {
                 if (currentQuestion > 1) {
                     currentQuestion--;
@@ -115,38 +115,32 @@
                 }
             });
 
-            // Chọn đáp án
             $('.answer-option').click(function() {
                 var $this = $(this);
                 var questionId = $this.closest('.question').data('question-id');
                 var answerId = $this.data('answer-id');
 
-                // Đánh dấu đáp án được chọn
                 $this.addClass('selected').siblings().removeClass('selected');
                 $this.find('input[type="radio"]').prop('checked', true);
 
-                // Lưu câu trả lời
                 answers[questionId] = answerId;
             });
 
-            // Nộp bài test
             $('#submit-btn').click(function() {
-                // Hiển thị loading
                 Swal.fire({
                     title: 'Đang xử lý kết quả...',
                     text: 'Vui lòng chờ trong giây lát',
                     allowOutsideClick: false,
                     didOpen: () => {
-                        Swal.showLoading()
+                        Swal.showLoading();
                     }
                 });
 
-                // Gửi kết quả đến server
                 $.ajax({
                     url: '/CareerTest/SubmitTest',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({ Answers: answers }),
+                    data: JSON.stringify({ UserId: 1, Answers: Object.fromEntries(Object.entries(answers).map(([k, v]) => [k, { QuestionId: k, AnswerId: v }])) }),
                     success: function(response) {
                         Swal.close();
                         window.location.href = '/CareerTest/Result?type=' + response.personalityType;
@@ -157,7 +151,6 @@
                 });
             });
 
-            // Khởi tạo
             updateProgress();
         });
     </script>

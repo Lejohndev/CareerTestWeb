@@ -157,4 +157,20 @@ namespace CareerTestWeb.Controllers
         public int AnswerType { get; set; }
         public int GroupID { get; set; }
     }
+
+    // View model cho câu hỏi
+    public class QuestionViewModel
+    {
+        public int STT { get; set; }
+        public int IDQues { get; set; }
+        public string? NameQues { get; set; }
+        public List<AnswerViewModel> Answers { get; set; } // Thay List<dynamic> bằng List<AnswerViewModel>
+    }
+
+    // View model cho đáp án
+    public class AnswerViewModel
+    {
+        public int IDAns { get; set; }
+        public string? NameAns { get; set; }
+    }
 }

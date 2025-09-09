@@ -15,23 +15,23 @@ public partial class CareerDbContext : DbContext
     {
     }
 
-    public virtual DbSet<CauHoi> CauHois { get; set; }
+    public virtual DbSet<CauHoi> CauHoi { get; set; }
 
-    public virtual DbSet<DapAnChuan> DapAnChuans { get; set; }
+    public virtual DbSet<DapAnChuan> DapAnChuan { get; set; }
 
-    public virtual DbSet<KetQuaMbti> KetQuaMbtis { get; set; }
+    public virtual DbSet<KetQuaMbti> KetQuaMBTI { get; set; }
 
-    public virtual DbSet<NgheNghiep> NgheNghieps { get; set; }
+    public virtual DbSet<NgheNghiep> NgheNghiep { get; set; }
 
-    public virtual DbSet<TinhCachMbti> TinhCachMbtis { get; set; }
+    public virtual DbSet<TinhCachMbti> TinhCachMBTI { get; set; }
 
-    public virtual DbSet<TraLoi> TraLois { get; set; }
+    public virtual DbSet<TraLoi> TraLoi { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Server=DESKTOP-B3STGKR;Database=MBTI;Trusted_Connection=True;TrustServerCertificate=True;");
+        optionsBuilder.UseSqlServer("Server=ZEPHYRUS\\HAO0109;Database=MBTI;Trusted_Connection=True;TrustServerCertificate=True;");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
