@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore;
+using CareerTestWeb.Models;
 namespace CareerTestWeb.Data
 {
 
@@ -11,10 +12,10 @@ namespace CareerTestWeb.Data
             {
             }
 
-            public DbSet<CauHoi> CauHois { get; set; }
+            public DbSet<CauHoi> CauHoi { get; set; }
             public DbSet<DapAnChuan> DapAnChuans { get; set; }
             public DbSet<Users> Users { get; set; }
-            public DbSet<TraLoi> TraLois { get; set; }
+            public DbSet<TraLoi> TraLoi { get; set; }
             public DbSet<KetQuaMBTI> KetQuaMBTIs { get; set; }
             public DbSet<TinhCachMBTI> TinhCachMBTIs { get; set; }
             public DbSet<NgheNghiep> NgheNghieps { get; set; }
@@ -26,7 +27,10 @@ namespace CareerTestWeb.Data
                 modelBuilder.Entity<DapAnChuan>().HasKey(dc => dc.IDQues);
                 modelBuilder.Entity<TraLoi>().HasKey(tl => new { tl.UserID, tl.IDQues });
                 modelBuilder.Entity<NgheNghiep>().HasKey(nn => new { nn.MBTI, nn.TenNghe });
-            }
+                modelBuilder.Entity<KetQuaMBTI>().HasNoKey();
+                modelBuilder.Entity<TinhCachMBTI>().HasNoKey();
+                modelBuilder.Entity<Users>().HasNoKey();
+        }
         }
 
         // Định nghĩa các lớp model
@@ -40,7 +44,8 @@ namespace CareerTestWeb.Data
             public string NameAns { get; set; }
             public int AnswerType { get; set; }
             public int GroupID { get; set; }
-        }
+        public List<TraLoi> TraLoi { get; internal set; }
+    }
 
         public class DapAnChuan
         {

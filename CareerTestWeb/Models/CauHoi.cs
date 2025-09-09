@@ -39,4 +39,6 @@ public partial class CauHoi
 
     [InverseProperty("CauHoi")]
     public virtual ICollection<TraLoi> TraLois { get; set; } = new List<TraLoi>();
+    [NotMapped]
+    public List<TraLoi> TraLoi { get; set; }
 }
