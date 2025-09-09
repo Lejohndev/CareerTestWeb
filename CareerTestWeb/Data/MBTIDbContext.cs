@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using CareerTestWeb.Models;
+using System.ComponentModel.DataAnnotations;
+
 namespace CareerTestWeb.Data
 {
     public class MBTIDbContext : DbContext
@@ -8,39 +9,70 @@ namespace CareerTestWeb.Data
         {
         }
 
-            public DbSet<CauHoi> CauHoi { get; set; }
-            public DbSet<DapAnChuan> DapAnChuans { get; set; }
-            public DbSet<Users> Users { get; set; }
-            public DbSet<TraLoi> TraLoi { get; set; }
-            public DbSet<KetQuaMBTI> KetQuaMBTIs { get; set; }
-            public DbSet<TinhCachMBTI> TinhCachMBTIs { get; set; }
-            public DbSet<NgheNghiep> NgheNghieps { get; set; }
+        public DbSet<CauHoi> CauHois { get; set; }
+        public DbSet<DapAnChuan> DapAnChuans { get; set; }
+        public DbSet<Users> Users { get; set; }
+        public DbSet<TraLoi> TraLois { get; set; }
+        public DbSet<KetQuaMBTI> KetQuaMBTIs { get; set; }
+        public DbSet<TinhCachMBTI> TinhCachMBTIs { get; set; }
+        public DbSet<NgheNghiep> NgheNghieps { get; set; }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                // Cấu hình khóa chính và khóa ngoại nếu cần (EF Core tự động phát hiện từ SQL)
-                modelBuilder.Entity<CauHoi>().HasKey(ch => new { ch.IDQues, ch.IDAns });
-                modelBuilder.Entity<DapAnChuan>().HasKey(dc => dc.IDQues);
-                modelBuilder.Entity<TraLoi>().HasKey(tl => new { tl.UserID, tl.IDQues });
-                modelBuilder.Entity<NgheNghiep>().HasKey(nn => new { nn.MBTI, nn.TenNghe });
-                modelBuilder.Entity<KetQuaMBTI>().HasNoKey();
-                modelBuilder.Entity<TinhCachMBTI>().HasNoKey();
-                modelBuilder.Entity<Users>().HasNoKey();
-        }
-        }
-
-        // Định nghĩa các lớp model
-        public class CauHoi
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            public int STT { get; set; }
-            public int IDQues { get; set; }
-            public string NameQues { get; set; }
-            public int QuestionType { get; set; }
-            public int IDAns { get; set; }
-            public string NameAns { get; set; }
-            public int AnswerType { get; set; }
-            public int GroupID { get; set; }
-        public List<TraLoi> TraLoi { get; internal set; }
+            modelBuilder.Entity<CauHoi>().ToTable("CauHoi");
+            modelBuilder.Entity<DapAnChuan>().ToTable("DapAnChuan");
+            modelBuilder.Entity<Users>().ToTable("Users");
+            modelBuilder.Entity<TraLoi>().ToTable("TraLoi");
+            modelBuilder.Entity<KetQuaMBTI>().ToTable("KetQuaMBTI");
+            modelBuilder.Entity<TinhCachMBTI>().ToTable("TinhCachMBTI");
+            modelBuilder.Entity<NgheNghiep>().ToTable("NgheNghiep");
+
+            modelBuilder.Entity<CauHoi>().HasKey(ch => new { ch.IDQues, ch.IDAns });
+            modelBuilder.Entity<DapAnChuan>().HasKey(dc => dc.IDQues);
+            modelBuilder.Entity<TraLoi>().HasKey(tl => new { tl.UserID, tl.IDQues });
+            modelBuilder.Entity<NgheNghiep>().HasKey(nn => new { nn.MBTI, nn.TenNghe });
+            modelBuilder.Entity<KetQuaMBTI>().HasKey(kq => kq.UserID);
+            modelBuilder.Entity<TinhCachMBTI>().HasKey(tc => tc.MBTI);
+
+            modelBuilder.Entity<DapAnChuan>()
+                .HasOne<DapAnChuan>()
+                .WithMany()
+                .HasForeignKey(dc => new { dc.IDQues, dc.IDAns })
+                .HasPrincipalKey(ch => new { ch.IDQues, ch.IDAns });
+
+            modelBuilder.Entity<TraLoi>()
+                .HasOne<TraLoi>()
+                .WithMany()
+                .HasForeignKey(tl => new { tl.IDQues, tl.IDAns })
+                .HasPrincipalKey(ch => new { ch.IDQues, ch.IDAns });
+
+            modelBuilder.Entity<TraLoi>()
+                .HasOne<Users>()
+                .WithMany()
+                .HasForeignKey(tl => tl.UserID);
+
+            modelBuilder.Entity<KetQuaMBTI>()
+                .HasOne<Users>()
+                .WithMany()
+                .HasForeignKey(kq => kq.UserID);
+
+            modelBuilder.Entity<NgheNghiep>()
+                .HasOne<TinhCachMBTI>()
+                .WithMany()
+                .HasForeignKey(nn => nn.MBTI);
+        }
+    }
+
+    public class CauHoi
+    {
+        public int STT { get; set; }
+        public int IDQues { get; set; }
+        public string? NameQues { get; set; }
+        public int QuestionType { get; set; }
+        public int IDAns { get; set; }
+        public string? NameAns { get; set; }
+        public int AnswerType { get; set; }
+        public int GroupID { get; set; }
     }
 
     public class DapAnChuan
@@ -49,11 +81,12 @@ namespace CareerTestWeb.Data
         public int IDAns { get; set; }
         public int AnswerType { get; set; }
         public int GroupID { get; set; }
-        public virtual CauHoi CauHoi { get; set; } // Tham chiếu đến CauHoi
+        public virtual CauHoi CauHoi { get; set; }
     }
 
     public class Users
     {
+        [Key] // Đánh dấu UserID là khóa chính
         public int UserID { get; set; }
         public string? Ten { get; set; }
         public int? Tuoi { get; set; }
@@ -66,8 +99,8 @@ namespace CareerTestWeb.Data
         public int UserID { get; set; }
         public int IDQues { get; set; }
         public int IDAns { get; set; }
-        public virtual CauHoi CauHoi { get; set; } // Tham chiếu đến CauHoi
-        public virtual Users User { get; set; } // Tham chiếu đến Users
+        public virtual CauHoi CauHoi { get; set; }
+        public virtual Users User { get; set; }
     }
 
     public class KetQuaMBTI
@@ -78,7 +111,7 @@ namespace CareerTestWeb.Data
         public float? DiemS_N { get; set; }
         public float? DiemT_F { get; set; }
         public float? DiemJ_P { get; set; }
-        public virtual Users User { get; set; } // Tham chiếu đến Users
+        public virtual Users User { get; set; }
     }
 
     public class TinhCachMBTI
@@ -99,6 +132,6 @@ namespace CareerTestWeb.Data
         public int MucDoPhuHop { get; set; }
         public int CoHoiThangTien { get; set; }
         public int DoOnDinh { get; set; }
-        public virtual TinhCachMBTI TinhCachMBTI { get; set; } // Tham chiếu đến TinhCachMBTI
+        public virtual TinhCachMBTI TinhCachMBTI { get; set; }
     }
 }

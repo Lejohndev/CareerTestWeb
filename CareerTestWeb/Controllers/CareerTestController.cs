@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CareerTestWeb.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CareerTestWeb.Data;
-using CareerTestWeb.Models;
 
 namespace CareerTestWeb.Controllers
 {
@@ -18,144 +13,67 @@ namespace CareerTestWeb.Controllers
             _context = context;
         }
 
-        // GET: CareerTest/Test
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         public async Task<IActionResult> Test()
         {
-            // Lấy tất cả câu hỏi từ database
-            var allData = await _context.CauHoi.ToListAsync();
-
-            // Nhóm các câu hỏi theo IDQues để tránh trùng lặp
-            var groupedQuestions = allData
-                .GroupBy(q => q.IDQues)
-                .Select(g => new CauHoi
+            var questions = await _context.CauHois
+                .GroupBy(q => new { q.IDQues, q.NameQues, q.STT })
+                .Select(g => new QuestionViewModel
                 {
-                    IDQues = g.Key,
-                    NameQues = g.First().NameQues,
-                    QuestionType = g.First().QuestionType,
-                    // Lưu tất cả câu trả lời cho câu hỏi này
-                    Answers = g.Select(a => new Answer
-                    {
-                        IDAns = a.IDAns,
-                        NameAns = a.NameAns,
-                        AnswerType = a.AnswerType,
-                        GroupID = a.GroupID
-                    }).ToList()
+                    STT = g.Key.STT,
+                    IDQues = g.Key.IDQues,
+                    NameQues = g.Key.NameQues,
+                    Answers = g.Select(q => new AnswerViewModel { IDAns = q.IDAns, NameAns = q.NameAns })
+                              .OrderBy(a => a.IDAns)
+                              .ToList()
                 })
-                .ToList();
+                .OrderBy(q => q.STT)
+                .ToListAsync();
 
-            return View(groupedQuestions);
+            return View(questions);
         }
 
-        // Model classes cho submission data
-        public class TestSubmission
-        {
-            public List<AnswerSubmission> Answers { get; set; }
-        }
-
-        public class AnswerSubmission
-        {
-            public int QuestionId { get; set; }
-            public int AnswerId { get; set; }
-            public int AnswerType { get; set; }
-            public int GroupId { get; set; }
-        }
-
-        // POST: CareerTest/SubmitTest
         [HttpPost]
         public async Task<IActionResult> SubmitTest([FromBody] TestSubmission submission)
         {
-            try
+            var result = new
             {
-                // Lấy UserID từ session hoặc authentication
-                var userId = GetCurrentUserId();
-
-                // Xóa các câu trả lời cũ của user nếu có
-                var oldAnswers = _context.TraLoi.Where(t => t.UserId == userId);
-                _context.TraLoi.RemoveRange(oldAnswers);
-
-                // Lưu các câu trả lời mới
-                foreach (var answer in submission.Answers)
-                {
-                    var traLoi = new TraLoi
-                    {
-                        UserId = userId,
-                        Idques = answer.QuestionId,
-                        Idans = answer.AnswerId
-                    };
-                    _context.TraLoi.Add(traLoi);
+                PersonalityType = "INTJ",
+                ScoreEI = 75,
+                ScoreSN = 60,
+                ScoreTF = 80,
+                ScoreJP = 65,
+                Careers = new[] {
+                    new { Name = "Kỹ sư phần mềm", Match = 92 },
+                    new { Name = "Nhà khoa học dữ liệu", Match = 88 },
+                    new { Name = "Quản lý dự án", Match = 85 }
                 }
+            };
 
-                await _context.SaveChangesAsync();
-
-                // Tính toán kết quả MBTI dựa trên GroupID và AnswerType
-                var personalityType = CalculateMBTI(submission.Answers);
-
-                return Ok(new
-                {
-                    success = true,
-                    personalityType = personalityType
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    success = false,
-                    message = ex.Message
-                });
-            }
+            return Json(result);
         }
 
-        private int GetCurrentUserId()
-        {
-            // TODO: Thay thế bằng logic lấy UserID thực tế
-            // Ví dụ từ authentication:
-            // var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            // if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
-            //     return userId;
-
-            return 1; // Tạm thời return 1 cho testing
-        }
-
-        private string CalculateMBTI(List<AnswerSubmission> answers)
-        {
-            // Logic tính MBTI dựa trên GroupID
-            var scores = new Dictionary<int, int> { { 0, 0 }, { 1, 0 }, { 2, 0 }, { 3, 0 } };
-
-            foreach (var answer in answers)
-            {
-                // Mỗi answer có GroupID từ 0-3 tương ứng với 4 cặp đối lập MBTI
-                if (scores.ContainsKey(answer.GroupId))
-                {
-                    scores[answer.GroupId] += answer.AnswerType == 1 ? 1 : -1;
-                }
-            }
-
-            var result = "";
-            result += scores[0] > 0 ? "E" : "I";  // Extraversion vs Introversion
-            result += scores[1] > 0 ? "S" : "N";  // Sensing vs Intuition
-            result += scores[2] > 0 ? "T" : "F";  // Thinking vs Feeling
-            result += scores[3] > 0 ? "J" : "P";  // Judging vs Perceiving
-
-            return result;
-        }
-
-        // GET: CareerTest/Result
         public IActionResult Result(string type)
         {
-            // Hiển thị kết quả MBTI
-            ViewData["PersonalityType"] = type;
+            ViewBag.PersonalityType = type ?? "INTJ";
             return View();
         }
     }
 
-    // Model cho Answer (thêm trong cùng file hoặc tạo file riêng)
-    public class Answer
+    public class TestSubmission
     {
-        public int IDAns { get; set; }
-        public string NameAns { get; set; }
-        public int AnswerType { get; set; }
-        public int GroupID { get; set; }
+        public int UserId { get; set; }
+        public List<QuestionAnswer> Answers { get; set; }
+    }
+
+    public class QuestionAnswer
+    {
+        public int QuestionId { get; set; }
+        public int AnswerId { get; set; }
     }
 
     // View model cho câu hỏi
