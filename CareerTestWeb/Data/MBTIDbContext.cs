@@ -27,39 +27,53 @@ namespace CareerTestWeb.Data
             modelBuilder.Entity<TinhCachMBTI>().ToTable("TinhCachMBTI");
             modelBuilder.Entity<NgheNghiep>().ToTable("NgheNghiep");
 
+            // Định nghĩa khóa chính
             modelBuilder.Entity<CauHoi>().HasKey(ch => new { ch.IDQues, ch.IDAns });
             modelBuilder.Entity<DapAnChuan>().HasKey(dc => dc.IDQues);
             modelBuilder.Entity<TraLoi>().HasKey(tl => new { tl.UserID, tl.IDQues });
             modelBuilder.Entity<NgheNghiep>().HasKey(nn => new { nn.MBTI, nn.TenNghe });
-            modelBuilder.Entity<KetQuaMBTI>().HasKey(kq => kq.UserID);
+            modelBuilder.Entity<KetQuaMBTI>().HasKey(kq => kq.KetQuaID); // Thêm khóa chính mới
+            modelBuilder.Entity<Users>().HasKey(u => u.UserID);
             modelBuilder.Entity<TinhCachMBTI>().HasKey(tc => tc.MBTI);
 
+            // Sửa mối quan hệ
             modelBuilder.Entity<DapAnChuan>()
-                .HasOne<DapAnChuan>()
+                .HasOne<CauHoi>()
                 .WithMany()
                 .HasForeignKey(dc => new { dc.IDQues, dc.IDAns })
                 .HasPrincipalKey(ch => new { ch.IDQues, ch.IDAns });
 
             modelBuilder.Entity<TraLoi>()
-                .HasOne<TraLoi>()
-                .WithMany()
-                .HasForeignKey(tl => new { tl.IDQues, tl.IDAns })
-                .HasPrincipalKey(ch => new { ch.IDQues, ch.IDAns });
+                .HasKey(tl => new { tl.UserID, tl.IDQues });
 
             modelBuilder.Entity<TraLoi>()
-                .HasOne<Users>()
+                .HasOne(t => t.User)
                 .WithMany()
-                .HasForeignKey(tl => tl.UserID);
+                .HasForeignKey(t => t.UserID);
+
+            modelBuilder.Entity<TraLoi>()
+                .HasOne(t => t.CauHoi)
+                .WithMany()
+                .HasForeignKey(t => new { t.IDQues, t.IDAns })
+                .HasPrincipalKey(ch => new { ch.IDQues, ch.IDAns });
+
 
             modelBuilder.Entity<KetQuaMBTI>()
                 .HasOne<Users>()
                 .WithMany()
                 .HasForeignKey(kq => kq.UserID);
 
+
             modelBuilder.Entity<NgheNghiep>()
-                .HasOne<TinhCachMBTI>()
+                .HasKey(nn => new { nn.MBTI, nn.TenNghe });
+
+            modelBuilder.Entity<NgheNghiep>()
+                .HasOne(nn => nn.TinhCachMBTI)
                 .WithMany()
-                .HasForeignKey(nn => nn.MBTI);
+                .HasForeignKey(nn => nn.MBTI)      // foreign key thật trong bảng NgheNghiep
+                .HasPrincipalKey(tc => tc.MBTI);   // khóa chính trong TinhCachMBTI
+
+
         }
     }
 
@@ -86,7 +100,7 @@ namespace CareerTestWeb.Data
 
     public class Users
     {
-        [Key] // Đánh dấu UserID là khóa chính
+        [Key]
         public int UserID { get; set; }
         public string? Ten { get; set; }
         public int? Tuoi { get; set; }
@@ -105,6 +119,8 @@ namespace CareerTestWeb.Data
 
     public class KetQuaMBTI
     {
+        [Key] // Thêm khóa chính mới
+        public int KetQuaID { get; set; }
         public int UserID { get; set; }
         public string? MBTI { get; set; }
         public float? DiemE_I { get; set; }
@@ -116,7 +132,8 @@ namespace CareerTestWeb.Data
 
     public class TinhCachMBTI
     {
-        public string? MBTI { get; set; }
+        [Key]
+        public string MBTI { get; set; } = string.Empty;
         public string? TenNhom { get; set; }
         public string? MoTa { get; set; }
         public string? UuDiem { get; set; }
@@ -132,6 +149,15 @@ namespace CareerTestWeb.Data
         public int MucDoPhuHop { get; set; }
         public int CoHoiThangTien { get; set; }
         public int DoOnDinh { get; set; }
+        // Thuộc tính quy đổi %
+        public int ThuNhapTBPercent => ThuNhapTB * 10;
+        public int CoHoiViecLamPercent => CoHoiViecLam * 10;
+        public int MucDoPhuHopPercent => MucDoPhuHop * 10;
+        public int CoHoiThangTienPercent => CoHoiThangTien * 10;
+        public int DoOnDinhPercent => DoOnDinh * 10;
+
         public virtual TinhCachMBTI TinhCachMBTI { get; set; }
+
     }
 }
+
