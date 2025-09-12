@@ -230,16 +230,10 @@ namespace CareerTestWeb.Controllers
             Console.WriteLine("[DEBUG] FilterCareers - Received request: " + (request != null ? JsonSerializer.Serialize(request) : "null"));
 
             if (request == null || string.IsNullOrEmpty(request.PersonalityType) || request.SelectedCriteria == null || request.SelectedCriteria.Count != 5)
-            {
-                Console.WriteLine("[DEBUG] FilterCareers - Invalid request data: PersonalityType=" + (request?.PersonalityType ?? "null") + ", Criteria count=" + (request?.SelectedCriteria?.Count ?? 0));
                 return BadRequest("Invalid request. PersonalityType and exactly 5 SelectedCriteria are required.");
-            }
 
             if (!await _context.TinhCachMBTIs.AnyAsync(t => t.MBTI == request.PersonalityType))
-            {
-                Console.WriteLine("[DEBUG] FilterCareers - Invalid MBTI: " + request.PersonalityType);
                 return BadRequest("Invalid MBTI type: " + request.PersonalityType);
-            }
 
             var careers = await _context.NgheNghieps
                 .Where(n => n.MBTI == request.PersonalityType)
@@ -254,24 +248,43 @@ namespace CareerTestWeb.Controllers
                 })
                 .ToListAsync();
 
-            if (careers == null || !careers.Any())
-            {
-                Console.WriteLine("[DEBUG] FilterCareers - No careers found for MBTI: " + request.PersonalityType);
+            if (!careers.Any())
                 return Json(new { TopCareers = new List<CareerOption>(), AllCareers = new List<CareerOption>() });
-            }
 
-            var pairWiseMatrix = new double[5, 5];
-            Console.WriteLine("[DEBUG] FilterCareers - SelectedCriteria: " + string.Join(", ", request.SelectedCriteria));
-            if (request.SelectedCriteria.All(c => !c))
+            var selectedIndexes = request.SelectedCriteria
+                .Select((v, i) => new { v, i })
+                .Where(x => x.v)
+                .Select(x => x.i)
+                .ToList();
+
+            List<(CareerOption Career, double Score)> scoredCareers;
+
+            // --- 🟢 Nếu chỉ chọn 1 tiêu chí: lọc cứng ---
+            if (selectedIndexes.Count == 1)
             {
-                Console.WriteLine("[DEBUG] FilterCareers - All criteria false, setting equal weights.");
-                for (int i = 0; i < 5; i++)
-                    for (int j = 0; j < 5; j++)
-                        pairWiseMatrix[i, j] = 1;
+                int idx = selectedIndexes[0];
+                scoredCareers = careers.Select(c =>
+                {
+                    double s = idx switch
+                    {
+                        0 => c.ThuNhapTB,
+                        1 => c.CoHoiViecLam,
+                        2 => c.MucDoPhuHop,
+                        3 => c.CoHoiThangTien,
+                        4 => c.DoOnDinh,
+                        _ => 0
+                    };
+                    return (c, s);
+                }).ToList();
+                Console.WriteLine("[DEBUG] FilterCareers - Using single-criteria mode on index " + idx);
             }
             else
             {
-                Console.WriteLine("[DEBUG] FilterCareers - Calculating pairwise matrix with selected criteria.");
+                // --- 🟢 AHP như cũ ---
+                if (!selectedIndexes.Any())
+                    selectedIndexes = new List<int> { 0, 1, 2, 3, 4 };
+
+                var pairWiseMatrix = new double[5, 5];
                 for (int i = 0; i < 5; i++)
                 {
                     for (int j = 0; j < 5; j++)
@@ -283,54 +296,41 @@ namespace CareerTestWeb.Controllers
                         pairWiseMatrix[j, i] = 1.0 / pairWiseMatrix[i, j];
                     }
                 }
-            }
 
-            var columnSums = new double[5];
-            for (int j = 0; j < 5; j++)
+                var columnSums = new double[5];
+                for (int j = 0; j < 5; j++)
+                    for (int i = 0; i < 5; i++)
+                        columnSums[j] += pairWiseMatrix[i, j];
+
+                var weights = new double[5];
                 for (int i = 0; i < 5; i++)
-                    columnSums[j] += pairWiseMatrix[i, j];
-            Console.WriteLine("[DEBUG] FilterCareers - Column sums: " + string.Join(", ", columnSums));
+                {
+                    double rowSum = 0;
+                    for (int j = 0; j < 5; j++)
+                        rowSum += pairWiseMatrix[i, j] / columnSums[j];
+                    weights[i] = rowSum / 5;
+                }
 
-            var normalizedMatrix = new double[5, 5];
-            for (int i = 0; i < 5; i++)
-                for (int j = 0; j < 5; j++)
-                    normalizedMatrix[i, j] = pairWiseMatrix[i, j] / columnSums[j];
-
-            var weights = new double[5];
-            for (int i = 0; i < 5; i++)
-            {
-                double rowSum = 0;
-                for (int j = 0; j < 5; j++)
-                    rowSum += normalizedMatrix[i, j];
-                weights[i] = rowSum / 5;
+                scoredCareers = careers.Select(c => (
+                    c,
+                    (c.ThuNhapTB * weights[0]) +
+                    (c.CoHoiViecLam * weights[1]) +
+                    (c.MucDoPhuHop * weights[2]) +
+                    (c.CoHoiThangTien * weights[3]) +
+                    (c.DoOnDinh * weights[4])
+                )).ToList();
+                Console.WriteLine("[DEBUG] FilterCareers - Using AHP mode. Weights=" + string.Join(",", weights));
             }
-            Console.WriteLine("[DEBUG] FilterCareers - Weights: " + string.Join(", ", weights));
 
-            var scoredCareers = careers.Select(c => new
-            {
-                Career = c,
-                Score = (c.ThuNhapTB * weights[0]) + (c.CoHoiViecLam * weights[1]) +
-                        (c.MucDoPhuHop * weights[2]) + (c.CoHoiThangTien * weights[3]) +
-                        (c.DoOnDinh * weights[4])
-            }).ToList();
-            Console.WriteLine("[DEBUG] FilterCareers - Scored careers count: " + scoredCareers.Count + ", Sample scores: " + string.Join(", ", scoredCareers.Take(3).Select(c => c.Score)));
-
-            var maxScore = scoredCareers.Any() ? scoredCareers.Max(c => c.Score) : 0;
-            Console.WriteLine("[DEBUG] FilterCareers - Max score: " + maxScore);
+            var maxScore = scoredCareers.Max(c => c.Score);
             var topCareers = scoredCareers
-                .Where(c => c.Score > 0 && c.Score == maxScore) // Đảm bảo score > 0
+                .Where(c => c.Score == maxScore)
                 .Select(c => c.Career)
                 .ToList();
 
-            if (!topCareers.Any() && scoredCareers.Any())
-            {
-                Console.WriteLine("[DEBUG] FilterCareers - No top careers with max score, returning highest scored career.");
-                topCareers = new List<CareerOption> { scoredCareers.OrderByDescending(c => c.Score).First().Career };
-            }
-
-            Console.WriteLine("[DEBUG] FilterCareers - Returning TopCareers count: " + topCareers.Count + ", AllCareers count: " + careers.Count);
             return Json(new { TopCareers = topCareers, AllCareers = careers });
         }
+
     }
 
     public class TestSubmission
