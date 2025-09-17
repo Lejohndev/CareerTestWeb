@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "16 Nhóm Tính Cách MBTI";
+}
+
+<div class="container py-5">
+    <h1 class="text-center mb-5">16 Nhóm Tính Cách MBTI</h1>
+
+    <div class="row">
+        @{
+            var personalityTypes = new[]
+            {
+        new { Type = "ENFJ", Name = "Người Chỉ Dạy (Teacher)", Color = "primary" },
+        new { Type = "ENFP", Name = "Nhà Vô Địch (Champion)", Color = "success" },
+        new { Type = "ENTJ", Name = "Nhà Điều Hành (Executive)", Color = "info" },
+        new { Type = "ENTP", Name = "Người Phát Minh (Inventor)", Color = "warning" },
+        new { Type = "ESTJ", Name = "Người Giám Sát (Supervisors)", Color = "danger" },
+        new { Type = "ESFJ", Name = "Người Cung cấp (Provider)", Color = "primary" },
+        new { Type = "ESFP", Name = "Người Trình Diễn (Performer)", Color = "dark" },
+        new { Type = "ESTP", Name = "Người Đề Xướng (Promoter)", Color = "success" },
+        new { Type = "INFJ", Name = "Người Cố Vấn (Counselor)", Color = "info" },
+        new { Type = "INFP", Name = "Người Hòa Giải (Mediator)", Color = "warning" },
+        new { Type = "INTJ", Name = "Người Phân Tích (Analyst)", Color = "danger" },
+        new { Type = "INTP", Name = "Nhà Logic Học (Logician)", Color = "dark" },
+        new { Type = "ISFJ", Name = "Người Nuôi Dưỡng (Nurturer)", Color = "primary" },
+        new { Type = "ISFP", Name = "Nhà Soạn Nhạc (Composer)", Color = "success" },
+        new { Type = "ISTJ", Name = "Người Thanh Tra (Inspector)", Color = "info" },
+        new { Type = "ISTP", Name = "Thợ Thủ Công (Crafter)", Color = "warning" }
+        };
+        }
+
+        @foreach (var personality in personalityTypes)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="personality-badge bg-@personality.Color text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <span class="fw-bold">@personality.Type</span>
+                        </div>
+                        <h5 class="card-title">@personality.Type</h5>
+                        <p class="card-text text-muted small">@personality.Name</p>
+                        <a href="/PersonalityTypes/@personality.Type" class="btn btn-outline-@personality.Color btn-sm">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,245 @@
+﻿@model CareerTestWeb.Controllers.ResultViewModel
+
+@{
+    ViewData["Title"] = "Kết Quả MBTI";
+}
+
+<div class="bg-light py-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-controller="CareerTest" asp-action="Index">Bài Test MBTI</a></li>
+                <li class="breadcrumb-item active">Kết Quả</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+        <h1 class="text-success">Hoàn Thành Bài Đánh Giá!</h1>
+        <p class="lead">Kết quả tính cách MBTI của bạn:</p>
+
+        <div class="mb-4">
+            <h1 class="display-3 fw-bold text-primary" id="personality-type">@Model.PersonalityType</h1>
+            <p class="text-muted">Loại tính cách MBTI của bạn</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.TenNhom))
+        {
+            <h4 class="text-primary">@Model.TenNhom</h4>
+        }
+    </div>
+    <!-- Mô tả tính cách -->
+    <div class="col-md-12 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h4 class="card-title text-primary">Mô tả tính cách</h4>
+                <p class="card-text">@Model.MoTa</p>
+
+                @if (!string.IsNullOrEmpty(Model.UuDiem))
+                {
+                    <h6 class="mt-4">Ưu điểm nổi bật:</h6>
+                    <ul>
+                        @foreach (var line in Model.UuDiem.Replace("\\n", "\n")
+                                            .Split("\n", StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <li>@line.Trim()</li>
+                        }
+                    </ul>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.NhuocDiem))
+                {
+                    <h6 class="mt-4">Nhược điểm:</h6>
+                    <ul>
+                        @foreach (var line in Model.NhuocDiem.Replace("\\n", "\n")
+                                            .Split("\n", StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <li>@line.Trim()</li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+    <!-- Bố cục song song: Lọc và Nghề nghiệp phù hợp nhất -->
+    <div class="row mb-5">
+        <!-- Cột trái: Phần lọc -->
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title text-primary">Lọc tiêu chí</h4>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="criteriaThuNhapTB" name="criteria" value="0">
+                        <label class="form-check-label" for="criteriaThuNhapTB">Thu nhập TB</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="criteriaCoHoiViecLam" name="criteria" value="1">
+                        <label class="form-check-label" for="criteriaCoHoiViecLam">Cơ hội việc làm</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="criteriaMucDoPhuHop" name="criteria" value="2">
+                        <label class="form-check-label" for="criteriaMucDoPhuHop">Mức độ phù hợp</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="criteriaCoHoiThangTien" name="criteria" value="3">
+                        <label class="form-check-label" for="criteriaCoHoiThangTien">Cơ hội thăng tiến</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="criteriaDoOnDinh" name="criteria" value="4">
+                        <label class="form-check-label" for="criteriaDoOnDinh">Độ ổn định</label>
+                    </div>
+                    <button id="filterButton" class="btn btn-primary mt-3 w-100">Áp dụng</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột phải: Nghề nghiệp phù hợp nhất -->
+        <div class="col-md-9">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title text-primary">Nghề nghiệp phù hợp nhất</h4>
+                    <div id="top-career-static">
+                        @if (Model.TopCareer != null)
+                        {
+                            <h5 class="text-secondary">@Model.TopCareer.TenNghe</h5>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">Mức độ phù hợp: @(Model.TopCareer.MucDoPhuHop * 10)%</span>
+                                <span class="badge bg-success ms-2">Thu nhập TB: @(Model.TopCareer.ThuNhapTB * 10)%</span>
+                                <span class="badge bg-info ms-2">Cơ hội việc làm: @(Model.TopCareer.CoHoiViecLam * 10)%</span>
+                                <span class="badge bg-warning text-dark ms-2">Cơ hội thăng tiến: @(Model.TopCareer.CoHoiThangTien * 10)%</span>
+                                <span class="badge bg-secondary ms-2">Độ ổn định: @(Model.TopCareer.DoOnDinh * 10)%</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <p>Chưa có nghề phù hợp nhất.</p>
+                        }
+                    </div>
+                    <div id="top-career-filtered" style="display: none;">
+                        <!-- Dữ liệu từ FilterCareers sẽ được render ở đây -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách tất cả ngành nghề -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-primary">Tất cả ngành nghề phù hợp</h4>
+                    @if (Model.OtherCareers != null && Model.OtherCareers.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var career in Model.OtherCareers)
+                            {
+                                <li class="list-group-item">
+                                    <span class="fw-bold">@career.TenNghe</span>
+                                    <div class="mt-2">
+                                        <span class="badge bg-primary">Mức độ phù hợp: @(career.MucDoPhuHop * 10)%</span>
+                                        <span class="badge bg-success ms-2">Thu nhập TB: @(career.ThuNhapTB * 10)%</span>
+                                        <span class="badge bg-info ms-2">Cơ hội việc làm: @(career.CoHoiViecLam * 10)%</span>
+                                        <span class="badge bg-warning text-dark ms-2">Cơ hội thăng tiến: @(career.CoHoiThangTien * 10)%</span>
+                                        <span class="badge bg-secondary ms-2">Độ ổn định: @(career.DoOnDinh * 10)%</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>Không có dữ liệu ngành nghề khác.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-controller="CareerTest" asp-action="Test" class="btn btn-primary">
+            <i class="fas fa-redo me-2"></i>Làm lại đánh giá
+        </a>
+        <button class="btn btn-outline-primary ms-2">
+            <i class="fas fa-download me-2"></i>Tải kết quả
+        </button>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary ms-2">
+            <i class="fas fa-home me-2"></i>Về trang chủ
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var filterButton = document.getElementById('filterButton');
+            if (!filterButton) return;
+
+            filterButton.addEventListener('click', function () {
+                var criteria = [false, false, false, false, false];
+                var checkboxes = document.querySelectorAll('input[name="criteria"]:checked');
+                checkboxes.forEach(function (checkbox) {
+                    var index = parseInt(checkbox.value);
+                    if (!isNaN(index) && index >= 0 && index < 5) criteria[index] = true;
+                });
+
+                var personalityType = document.getElementById('personality-type')?.textContent.trim() || 'ENFP';
+
+                fetch('/CareerTest/FilterCareers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        PersonalityType: personalityType,
+                        SelectedCriteria: criteria
+                    })
+                })
+                .then(res => {
+                    if (!res.ok) return res.text().then(t => { throw new Error(t || 'Network error'); });
+                    return res.json();
+                })
+                .then(data => {
+                    var topCareerStaticDiv = document.getElementById('top-career-static');
+                    var topCareerFilteredDiv = document.getElementById('top-career-filtered');
+
+                    topCareerStaticDiv.style.display = 'none';
+                    topCareerFilteredDiv.innerHTML = '';
+
+                    var topList = data.TopCareers || data.topCareers || [];
+
+                    if (topList.length > 0) {
+                        topCareerFilteredDiv.style.display = 'block';
+                        topList.forEach(item => {
+                            var c = item.Career || item.career || item;
+                            topCareerFilteredDiv.innerHTML += `
+                                <h5 class="text-secondary">${c.TenNghe || c.tenNghe || 'Unknown'}</h5>
+                                <div class="mt-3">
+                                    <span class="badge bg-primary">Mức độ phù hợp: ${(((c.MucDoPhuHop ?? c.mucDoPhuHop) *10) || 0)}%</span>
+                                    <span class="badge bg-success ms-2">Thu nhập TB: ${(((c.ThuNhapTB ?? c.thuNhapTB)*10)||0)}%</span>
+                                    <span class="badge bg-info ms-2">Cơ hội việc làm: ${(((c.CoHoiViecLam ?? c.coHoiViecLam)*10)||0)}%</span>
+                                    <span class="badge bg-warning text-dark ms-2">Cơ hội thăng tiến: ${(((c.CoHoiThangTien ?? c.coHoiThangTien)*10)||0)}%</span>
+                                    <span class="badge bg-secondary ms-2">Độ ổn định: ${(((c.DoOnDinh ?? c.doOnDinh)*10)||0)}%</span>
+                                </div>`;
+                        });
+                    } else {
+                        topCareerFilteredDiv.innerHTML = '<p>Không tìm thấy nghề phù hợp. Kiểm tra lại tiêu chí lọc hoặc dữ liệu.</p>';
+                        topCareerFilteredDiv.style.display = 'block';
+                    }
+
+                    console.log('Top careers:', topList);
+                })
+                .catch(err => {
+                    console.error('Lỗi khi lọc:', err.message);
+                    var topCareerStaticDiv = document.getElementById('top-career-static');
+                    var topCareerFilteredDiv = document.getElementById('top-career-filtered');
+                    topCareerStaticDiv.style.display = 'none';
+                    topCareerFilteredDiv.innerHTML = '<p>Có lỗi xảy ra khi lọc nghề: ' + err.message + '</p>';
+                    topCareerFilteredDiv.style.display = 'block';
+                });
+            });
+        });
+    </script>
+}
