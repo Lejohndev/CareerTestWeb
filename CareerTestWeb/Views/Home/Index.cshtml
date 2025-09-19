@@ -11,6 +11,9 @@
         <a asp-controller="CareerTest" asp-action="Test" class="btn btn-light btn-lg">Làm Bài Test Ngay <i class="fas fa-arrow-right ms-2"></i></a>
 
     </div>
+    <img class="mbti-header__image-left lazyloaded" data-src="https://cdn-new.topcv.vn/unsafe/https://static.topcv.vn/v4/image/mbti/mbti-top-left.png" alt="MBTI image top left" src="https://cdn-new.topcv.vn/unsafe/https://static.topcv.vn/v4/image/mbti/mbti-top-left.png">
+
+    <img class="mbti-header__image-right lazyloaded" data-src="https://cdn-new.topcv.vn/unsafe/https://static.topcv.vn/v4/image/mbti/mbti-top-right.png" alt="MBTI image top right" src="https://cdn-new.topcv.vn/unsafe/https://static.topcv.vn/v4/image/mbti/mbti-top-right.png">
 </section>
 
 <!-- Personality Types Section -->
@@ -37,7 +40,7 @@
                     new { Type = "ENTP", Name = "Người Phát Minh (Inventor)", Color = "warning" },
                     new { Type = "ESTJ", Name = "Người Giám Sát (Supervisors)", Color = "danger" },
                     new { Type = "ESFP", Name = "Người Trình Diễn (Performer)", Color = "dark" },
-                    new { Type = "ESTJ", Name = "Người giám sát (Supervisors)", Color = "primary" },
+                    new { Type = "ESFJ", Name = "Người cung cấp (Provider)", Color = "primary" },
                     new { Type = "ESTP", Name = "Người Đề Xướng (Promoter)", Color = "success" },
                     new { Type = "INFJ", Name = "Người Cố Vấn (Counselor)", Color = "info" },
                     new { Type = "INFP", Name = "Người Hòa Giải (Mediator)", Color = "warning" },
@@ -68,14 +71,54 @@
                 </div>
             </div>
         </div>
+       
 
         <div class="text-center mt-5">
             <a href="/PersonalityTypes" class="btn btn-primary btn-lg">Xem tất cả nhóm tính cách</a>
         </div>
+
+        <div id="what-is-mbti" class="reveal-container" bis_skin_checked="1">
+            <div class="container what-is-mbti" bis_skin_checked="1">
+                <h2 class="what-is-mbti_title">
+                    Trắc nghiệm tính cách MBTI là gì?
+                </h2>
+
+               
+                    <div class="what-is-mbti_desc-content" bis_skin_checked="1">
+                        <p>
+                            <span class="text-bold">Trắc nghiệm tính cách MBTI</span> <span class="text-ilatic">(Myers-Briggs Type Indicator)</span> là một phương pháp sử dụng hàng loạt các câu
+                            hỏi trắc nghiệm để phân tích tính cách con người. Kết quả trắc nghiệm MBTI chỉ ra cách con người
+                            nhận thức thế giới xung quanh và ra quyết định cho mọi vấn đề trong cuộc sống.
+                        </p>
+                        <p>
+                            Hiện nay, MBTI được coi là công cụ khám phá tính cách phổ biến và chính xác nhất trên thế giới.
+                            Trong công việc, MBTI giúp mỗi cá nhân có thêm thông tin để định hướng và lựa chọn nghề nghiệp. Nhà
+                            tuyển dụng cũng có thể sử dụng MBTI để đánh giá mức độ phù hợp của ứng viên với vị trí công việc và
+                            văn hoá doanh nghiệp.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <img src="https://cdn-new.topcv.vn/unsafe/https://static.topcv.vn/v4/image/mbti/mbti-body-line.png" class="mbti-body-line" alt="MBTI line">
     </div>
     </style>
 
     <style>
+        ..bg-light {
+            
+            background-color: #85E695 !important;
+        }
+
+        #what-is-mbti {
+            margin-top: 30px;
+        }
+
+        .mbti-body-line{
+			padding-left: 20px;
+		}
+      
+
         .personality-carousel {
             padding: 0 40px;
         }
@@ -274,6 +317,11 @@
                 <p>Khám phá các ngành nghề phù hợp nhất với tính cách MBTI của bạn</p>
             </div>
         </div>
+        <style>
+                .col-md-4 text-center mb-4{
+					background-color: #85E695 !important;
+				}
+            </style>
     </div>
 </section>
 
@@ -293,7 +341,7 @@
                 <a asp-controller="CareerTest" asp-action="Test" class="btn btn-primary mt-3">Bắt Đầu Làm Bài Test</a>
             </div>
             <div class="col-md-6">
-                <img src="https://via.placeholder.com/500x300?text=MBTI+Test+Preview" alt="MBTI Test Preview" class="img-fluid rounded shadow">
+                    <img data-src="https://cdn-new.topcv.vn/unsafe/https://static.topcv.vn/v4/image/mbti/mbti-message-image.png" alt="MBTI message image" class="mbti-message__image lazyloaded" src="https://cdn-new.topcv.vn/unsafe/https://static.topcv.vn/v4/image/mbti/mbti-message-image.png">
             </div>
         </div>
     </div>

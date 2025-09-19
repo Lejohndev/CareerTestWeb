@@ -11,9 +11,31 @@ body {
     color: #333;
     line-height: 1.6;
 }
-
+/*thanh navbar*/
+.navbar.bg-primary {
+    background: radial-gradient(circle, #E0F882, #38B789) !important;
+}
+/*/hero section*/
+.mbti-header__image-left {
+    left: 0;
+    position: absolute;
+    top: 55px;
+}
+.lazyloaded {
+    opacity: 1;
+    transition: opacity .3s;
+}
+.mbti-header__image-right {
+    right: 0;
+    position: absolute;
+    top: 56px;
+}
+.lazyloaded {
+    opacity: 1;
+    transition: opacity .3s;
+}
 .hero-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(to left, #E0F882, #38B789) !important;
     color: white;
     padding: 80px 0;
     text-align: center;
@@ -23,6 +45,8 @@ body {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
+    z-index: 10;
+    position: relative;
 }
 
 .hero-subtitle {
@@ -32,8 +56,8 @@ body {
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: #85E695 !important;
+    border-color: #85E695 !important;
     padding: 10px 25px;
     font-weight: 600;
     border-radius: 30px;
@@ -45,7 +69,7 @@ body {
     }
 
 .personality-card {
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.1s, box-shadow 0.3s;
     border: none;
     border-radius: 10px;
     overflow: hidden;
