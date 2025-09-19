@@ -55,7 +55,9 @@ body {
     margin: 0 auto 2rem;
 }
 
-.btn-primary {
+/*thanh slider*/
+
+    .btn-primary {
     background-color: #85E695 !important;
     border-color: #85E695 !important;
     padding: 10px 25px;

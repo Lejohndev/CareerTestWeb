@@ -1,11 +1,14 @@
 ﻿@{
     ViewData["Title"] = "INFJ - Người Cố Vấn (Counselor)";
+    Layout = "_Layout"; // Sử dụng layout chung của bạn
 }
 
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-8 mx-auto">
+            <!-- Header Section -->
             <div class="text-center mb-5">
+                <img src="https://mbti.vn/img/INFJs.svg" alt="INFJ Logo" class="img-fluid mb-3 d-block mx-auto" style="max-width: 200px; height: auto;">
                 <div class="personality-badge bg-info text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
                     <span class="fw-bold fs-3">INFJ</span>
                 </div>
@@ -13,6 +16,7 @@
                 <p class="lead text-muted">(Counselor)</p>
             </div>
 
+            <!-- Introduction -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h2 class="card-title h4 mb-3">Giới thiệu</h2>
@@ -22,9 +26,11 @@
                     <p class="card-text">
                         Với trực giác nhạy bén và sự đồng cảm sâu sắc, INFJ thường đóng vai trò người hướng dẫn và cố vấn cho người khác. Họ có tầm nhìn xa và mong muốn tạo ra sự thay đổi tích cực trong thế giới.
                     </p>
+                    <img src="https://mbti.vn/Files/Images/INFJ/Khai-niem-INFJ-la-gi.jpg" alt="INFJ Illustration" class="img-fluid rounded mb-4 d-block mx-auto" style="max-width: 50%; height: auto;">
                 </div>
             </div>
 
+            <!-- Strengths and Weaknesses -->
             <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="card h-100 shadow-sm">
@@ -56,6 +62,7 @@
                 </div>
             </div>
 
+            <!-- Career Paths -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h2 class="card-title h4 mb-3">Con đường sự nghiệp</h2>
@@ -87,6 +94,7 @@
                 </div>
             </div>
 
+            <!-- Call to Action -->
             <div class="text-center mt-5">
                 <a href="/CareerTest" class="btn btn-info btn-lg me-3">Khám phá nghề nghiệp phù hợp</a>
                 <a href="/PersonalityTypes" class="btn btn-outline-info btn-lg">Xem tất cả nhóm tính cách</a>
@@ -95,19 +103,41 @@
     </div>
 </div>
 
-<style>
-    .personality-badge {
-        width: 100px;
-        height: 100px;
-        font-size: 1.5rem;
-    }
+@section Styles {
+    <style>
+        .personality-badge {
+            width: 100px;
+            height: 100px;
+            font-size: 1.5rem;
+        }
 
-    .card {
-        border: none;
-        border-radius: 12px;
-    }
+        .card {
+            border: none;
+            border-radius: 12px;
+        }
 
-    h1, h2, h3, h4, h5, h6 {
-        color: #17a2b8;
-    }
-</style>
+        h1, h2, h3, h4, h5, h6 {
+            color: #17a2b8;
+        }
+
+        .img-fluid {
+            max-width: 50%;
+            height: auto;
+        }
+
+        .img-logo {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .rounded {
+            border-radius: 12px !important;
+        }
+
+        .d-block.mx-auto {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+}

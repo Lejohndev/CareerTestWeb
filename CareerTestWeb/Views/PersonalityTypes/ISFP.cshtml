@@ -1,11 +1,14 @@
 ﻿@{
     ViewData["Title"] = "ISFP - Nhà Soạn Nhạc (Composer)";
+    Layout = "_Layout"; // Sử dụng layout chung của bạn
 }
 
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-8 mx-auto">
+            <!-- Header Section -->
             <div class="text-center mb-5">
+                <img src="https://mbti.vn/img/ISFPs.svg" alt="ISFP Logo" class="img-fluid mb-3 d-block mx-auto" style="max-width: 200px; height: auto;">
                 <div class="personality-badge bg-success text-white rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
                     <span class="fw-bold fs-3">ISFP</span>
                 </div>
@@ -13,6 +16,7 @@
                 <p class="lead text-muted">(Composer)</p>
             </div>
 
+            <!-- Introduction -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h2 class="card-title h4 mb-3">Giới thiệu</h2>
@@ -22,9 +26,11 @@
                     <p class="card-text">
                         Với sự tinh tế và khả năng quan sát, ISFP thường chú ý đến những chi tiết nhỏ mà người khác có thể bỏ qua. Họ là những người sống trong hiện tại, tận hưởng cuộc sống một cách trọn vẹn thông qua các giác quan.
                     </p>
+                    <img src="https://mbti.vn/Files/Images/ISFP/ISFP-Khai-niem.jpg" alt="ISFP Illustration" class="img-fluid rounded mb-4 d-block mx-auto" style="max-width: 50%; height: auto;">
                 </div>
             </div>
 
+            <!-- Strengths and Weaknesses -->
             <div class="row mb-4">
                 <div class="col-md-6">
                     <div class="card h-100 shadow-sm">
@@ -56,6 +62,7 @@
                 </div>
             </div>
 
+            <!-- Career Paths -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h2 class="card-title h4 mb-3">Con đường sự nghiệp</h2>
@@ -87,6 +94,7 @@
                 </div>
             </div>
 
+            <!-- Call to Action -->
             <div class="text-center mt-5">
                 <a href="/CareerTest" class="btn btn-success btn-lg me-3">Khám phá nghề nghiệp phù hợp</a>
                 <a href="/PersonalityTypes" class="btn btn-outline-success btn-lg">Xem tất cả nhóm tính cách</a>
@@ -95,19 +103,41 @@
     </div>
 </div>
 
-<style>
-    .personality-badge {
-        width: 100px;
-        height: 100px;
-        font-size: 1.5rem;
-    }
+@section Styles {
+    <style>
+        .personality-badge {
+            width: 100px;
+            height: 100px;
+            font-size: 1.5rem;
+        }
 
-    .card {
-        border: none;
-        border-radius: 12px;
-    }
+        .card {
+            border: none;
+            border-radius: 12px;
+        }
 
-    h1, h2, h3, h4, h5, h6 {
-        color: #28a745;
-    }
-</style>
+        h1, h2, h3, h4, h5, h6 {
+            color: #28a745;
+        }
+
+        .img-fluid {
+            max-width: 50%;
+            height: auto;
+        }
+
+        .img-logo {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .rounded {
+            border-radius: 12px !important;
+        }
+
+        .d-block.mx-auto {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+}

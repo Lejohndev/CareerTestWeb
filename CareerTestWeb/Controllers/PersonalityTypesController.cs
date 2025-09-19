@@ -12,7 +12,7 @@ public class PersonalityTypesController : Controller
     public IActionResult Detail(string type)
     {
         // Kiểm tra type có hợp lệ không
-        var validTypes = new[] { "ENFJ", "ENFP", "ENTJ", "ENTP", "ESTJ", "ESFP", "ESTP", "INFJ", "INFP", "INTJ", "INTP", "ISFJ", "ISFP", "ISTJ", "ISTP" };
+        var validTypes = new[] { "ENFJ", "ENFP", "ENTJ", "ENTP", "ESTJ", "ESFJ", "ESFP", "ESTP", "INFJ", "INFP", "INTJ", "INTP", "ISFJ", "ISFP", "ISTJ", "ISTP" };
 
         if (!validTypes.Contains(type.ToUpper()))
         {
