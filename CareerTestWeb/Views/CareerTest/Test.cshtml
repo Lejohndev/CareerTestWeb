@@ -17,7 +17,41 @@
 </div>
 
 <div class="container py-5">
-    <div class="test-container">
+    <!-- User Info Modal -->
+    <div class="modal fade" id="userInfoModal" tabindex="-1" aria-labelledby="userInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="userInfoModalLabel">Thông tin người dùng</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="userInfoForm">
+                        <div class="mb-3">
+                            <label for="userName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="userName" required>
+                            <div class="invalid-feedback">Vui lòng nhập họ và tên</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userAge" class="form-label">Tuổi <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="userAge" min="10" max="100" required>
+                            <div class="invalid-feedback">Vui lòng nhập tuổi hợp lệ (10-100)</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userEmail" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="userEmail" required>
+                            <div class="invalid-feedback">Vui lòng nhập email hợp lệ</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="startTestBtn">Bắt đầu làm bài test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Container (Initially Hidden) -->
+    <div class="test-container" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Câu hỏi <span id="current-question">1</span>/<span id="total-questions">@Model.Count</span></h2>
             <div class="progress" style="width: 200px; height: 20px;">
@@ -69,11 +103,41 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
             var currentQuestion = 1;
             var totalQuestions = @Model.Count;
             var answers = {};
+            var userInfo = {};
+
+            // Hiển thị modal khi trang được tải
+            var userInfoModal = new bootstrap.Modal(document.getElementById('userInfoModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+            userInfoModal.show();
+
+            // Xử lý sự kiện khi nhấn nút "Bắt đầu làm bài test"
+            $('#startTestBtn').click(function () {
+                // Kiểm tra tính hợp lệ của form
+                var form = document.getElementById('userInfoForm');
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                // Lưu thông tin người dùng
+                userInfo = {
+                    name: $('#userName').val(),
+                    age: $('#userAge').val(),
+                    email: $('#userEmail').val()
+                };
+
+                // Đóng modal và hiển thị bài test
+                userInfoModal.hide();
+                $('.test-container').show();
+            });
 
             function updateProgress() {
                 var progress = (currentQuestion / totalQuestions) * 100;
@@ -154,12 +218,14 @@
                     }
                 });
 
+                // Gửi cả thông tin người dùng và kết quả test
                 $.ajax({
                     url: '/CareerTest/SubmitTest',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        UserId: 1,
+                        UserInfo: userInfo,
+                        UserId: 0, // Có thể bỏ qua nếu server tự tạo ID
                         Answers: Object.entries(answers).map(([k, v]) => ({
                             QuestionId: parseInt(k),
                             AnswerId: v
@@ -175,8 +241,11 @@
                 });
             });
 
-            showQuestion(currentQuestion);
-            updateProgress();
+            // Chỉ khởi tạo bài test sau khi modal đã đóng
+            $('#userInfoModal').on('hidden.bs.modal', function () {
+                showQuestion(currentQuestion);
+                updateProgress();
+            });
         });
     </script>
 }

@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --primary-color: #1a73e8;
     --secondary-color: #0d47a1;
     --accent-color: #4285f4;
@@ -11,6 +11,7 @@ body {
     color: #333;
     line-height: 1.6;
 }
+
 /*thanh navbar*/
 .navbar.bg-primary {
     background: radial-gradient(circle, #E0F882, #38B789) !important;
@@ -57,9 +58,9 @@ body {
 
 /*thanh slider*/
 
-    .btn-primary {
-    background-color: #85E695 !important;
-    border-color: #85E695 !important;
+.btn-primary {
+    background-color: #0F6944 !important;
+    border-color: #0F6944 !important;
     padding: 10px 25px;
     font-weight: 600;
     border-radius: 30px;
@@ -70,10 +71,18 @@ body {
         border-color: var(--secondary-color);
     }
 
-.personality-card {
+.card-body {
+    flex: 1 1 auto;
+    padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
+    color: black !important;
+    
+}
+
+
+    .personality-card {
     transition: transform 0.1s, box-shadow 0.3s;
     border: none;
-    border-radius: 10px;
+    border-radius: 40px;
     overflow: hidden;
 }
 
@@ -177,15 +186,23 @@ body {
 }
 
 .personality-carousel {
-    overflow: hidden;
-    padding: 20px 0;
+    padding: 0 40px;
 }
 
 .personality-track {
-    display: flex;
-    animation: slide 30s linear infinite;
+    transition: transform 0.1s ease; /* Tăng tốc độ chuyển động */
+    padding: 10px 0;
+    animation: slide 7s linear infinite; /* Tăng tốc độ tự động cuộn */
 }
 
     .personality-track:hover {
         animation-play-state: paused;
     }
+
+@media (min-width: 768px) {
+    .col-md-6 {
+        flex: 0 0 auto;
+        width: 50%;
+        color: white;
+    }
+}
