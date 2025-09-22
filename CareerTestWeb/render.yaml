@@ -1,0 +1,9 @@
+﻿services:
+  - type: web
+    name: career-test-web
+    runtime: docker
+    buildCommand: docker build -t career-test-web .
+    startCommand: docker run --rm -p 5000:80 career-test-web
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
