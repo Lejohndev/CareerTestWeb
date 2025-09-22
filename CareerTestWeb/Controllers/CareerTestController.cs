@@ -97,6 +97,34 @@ namespace CareerTestWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> SubmitTest([FromBody] TestSubmission submission)
         {
+            // Thêm xử lý UserInfo nếu có
+            if (submission.UserInfo != null)
+            {
+                // Tạo hoặc cập nhật thông tin user
+                var user = await _context.Users.FindAsync(submission.UserId);
+                if (user == null)
+                {
+                    user = new Users
+                    {
+                        UserID = submission.UserId,
+                        Ten = submission.UserInfo.Name,
+                        Tuoi = submission.UserInfo.Age,
+                        Email = submission.UserInfo.Email,
+                        NgayTest = DateTime.Now
+                    };
+                    _context.Users.Add(user);
+                }
+                else
+                {
+                    user.Ten = submission.UserInfo.Name;
+                    user.Tuoi = submission.UserInfo.Age;
+                    user.Email = submission.UserInfo.Email;
+                    user.NgayTest = DateTime.Now;
+                    _context.Users.Update(user);
+                }
+                await _context.SaveChangesAsync();
+            }
+
             if (submission == null || submission.Answers == null || submission.Answers.Count == 0)
             {
                 return BadRequest("No answers provided.");
@@ -104,18 +132,7 @@ namespace CareerTestWeb.Controllers
 
             var userId = submission.UserId;
 
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null)
-            {
-                user = new Users
-                {
-                    UserID = userId,
-                    Ten = "Người dùng mới",
-                    NgayTest = DateTime.Now
-                };
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-            }
+            
 
             var oldAnswers = await _context.TraLois.Where(t => t.UserID == userId).ToListAsync();
             if (oldAnswers.Any())
@@ -336,6 +353,7 @@ namespace CareerTestWeb.Controllers
     public class TestSubmission
     {
         public int UserId { get; set; }
+        public UserInfo UserInfo { get; set; } // Thêm dòng này
         public List<QuestionAnswer> Answers { get; set; }
     }
 
@@ -385,5 +403,14 @@ namespace CareerTestWeb.Controllers
     {
         public string PersonalityType { get; set; }
         public List<bool> SelectedCriteria { get; set; } // [ThuNhapTB, CoHoiViecLam, MucDoPhuHop, CoHoiThangTien, DoOnDinh]
+    }
+
+   
+
+    public class UserInfo
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public string Email { get; set; }
     }
 }
